@@ -43,7 +43,7 @@ public abstract class Graphs
      * @param <E> the graph edge type
      *
      * @return The newly created edge if added to the graph, otherwise {@code null}.
-     * 
+     *
      * @throws NullPointerException if any one of {@code g}, {@code sourceVertex}, or {@code targetVertex} is {@code null}
      * @throws UnsupportedOperationException if the graph has no edge supplier
      *
@@ -77,7 +77,7 @@ public abstract class Graphs
      * @param <E> the graph edge type
      *
      * @return The newly created edge if added to the graph, otherwise {@code null}.
-     * 
+     *
      * @throws NullPointerException if any one of the arguments is {@code null}
      */
     public static <V, E> E addEdgeWithVertices(Graph<V, E> g, V sourceVertex, V targetVertex)
@@ -124,7 +124,7 @@ public abstract class Graphs
      * @param <E> the graph edge type
      *
      * @return The newly created edge if added to the graph, otherwise {@code null}.
-     * 
+     *
      * @throws NullPointerException if any one of {@code g}, {@code sourceVertex}, or {@code targetVertex} is {@code null}
      */
     public static <V,
@@ -215,12 +215,24 @@ public abstract class Graphs
     {
         boolean modified = false;
 
+        boolean canModifyEdgeWeights = true;
         for (E e : edges) {
             V s = source.getEdgeSource(e);
             V t = source.getEdgeTarget(e);
             destination.addVertex(s);
             destination.addVertex(t);
+
+            boolean edgeModified = destination.addEdge(s, t, e);
             modified |= destination.addEdge(s, t, e);
+            if (canModifyEdgeWeights) {
+                try {
+                    destination.setEdgeWeight(e, source.getEdgeWeight(e));
+                } catch (UnsupportedOperationException ex) {
+                    canModifyEdgeWeights = false;
+                }
+            }
+
+            modified |= edgeModified;
         }
 
         return modified;
